@@ -25,6 +25,9 @@ class Regrassao:
             self.get_modelo(dados, tipo, N)
 
     def get_modelo(self, dados, tipo, N):
+        """ Separa os dados pelo tipo, separa em bases de treino/teste, calcula o modelo, 
+            calcula o desvio padrão e plota o gráfico com os dados obtidos com o modelo
+        """
         s_dados = self.split_dados(dados, tipo)
         base_treino, base_teste = self.split_bases(s_dados, N)
         B0, B1 = self.regressao_linear(base_treino, tipo)
