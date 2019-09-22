@@ -21,65 +21,54 @@ class Regrassao:
                     }
                     dados.append(aux)
         N = len(dados)
-        idade = self.get_informacoes(dados,"Idade", N)
-        tempo_estudo = self.get_informacoes(dados, "TempoEstudo", N)
-        faltas = self.get_informacoes(dados, "Faltas", N)
+        for tipo in ["Idade", "TempoEstudo", "Faltas"]:
+            self.get_modelo(dados, tipo, N)
 
-    def get_informacoes(self, dados, tipo, N):
-        dados = self.get_dados(dados, tipo)
-        base_treino, base_teste = self.get_base_treino(dados, N)
+    def get_modelo(self, dados, tipo, N):
+        s_dados = self.split_dados(dados, tipo)
+        base_treino, base_teste = self.split_bases(s_dados, N)
         B0, B1 = self.regressao_linear(base_treino, tipo)
-        xs = [d[0] for d in dados]
-        # ys = [d[1] for d in dados]
-        ys_r = [(B0 + (d[0] * B1)) for d in dados]
-        desvio = self.get_desvio(base_teste, B0, B1)
-        self.testa_funcao(B0,B1,base_teste)
+        xs = [d[0] for d in s_dados]
+        ys_r = [(B0 + (d[0] * B1)) for d in s_dados]
+        desvio = self.calc_desvio(base_teste, B0, B1)
+        # self.testa_funcao(B0,B1,base_teste)
         print("Desvio padrão: " + str(desvio))
         plt.title('Média das Provas x ' + tipo )
         plt.xlabel(tipo.title())
         plt.ylabel('Média das provas')
         plt.plot(xs, ys_r)
         plt.show()
-        return True
 
-    def get_desvio(self, base_teste, B0, B1):
+    def calc_desvio(self, base_teste, B0, B1):
+        """ Calcula o desvio padrão de acordo com os resultados encontrados na base de teste 
+        * Não tenho certeza se está correto
+         """
         desvio = 0
         for d in base_teste:
             y = d[1]
             fx = (B0 + (d[0] * B1))
             desvio += (y - fx) ** 2
         return desvio
-    
-    def get_dados(self, dados, tipo):
-        resultados = []
-        for item in dados:
-            if tipo == "Idade":
-                x = item.get("Idade")
-            elif tipo == "TempoEstudo":
-                x = item.get("TempoEstudo")
-            elif tipo == "Faltas":
-                x = item.get("Faltas") 
-            y = item.get("MediaProvas")
-            resultados.append((int(x), int(y)))
-        return resultados
-        
-    def regressao_linear(self, b_teste, tipo):
-        N = len(b_teste)
-        s_x = self.somat(b_teste, 'x')
-        s_y = self.somat(b_teste, 'y')
-        s_xy = self.somat(b_teste, 'xy')
-        s_x2 = self.somat(b_teste, 'x2')
+
+    def regressao_linear(self, b_treino, tipo):
+        """ Monta o modelo usando a base de treino, retornando o valor de B0 e de B1"""
+        N = len(b_treino)
+        s_x = self.somat(b_treino, 'x')
+        s_y = self.somat(b_treino, 'y')
+        s_xy = self.somat(b_treino, 'xy')
+        s_x2 = self.somat(b_treino, 'x2')
         B1 = ((s_x * s_y) - (N * s_xy)) / ((s_x ** 2) - (N * s_x2))
         B0 = (s_y - (B1 * s_x))/ N
         print(tipo + ": y = " + str(B0) + " + " + str(B1) + "x")
         return B0, B1
     
     def testa_funcao(self, B0, B1, dados_para_teste):
+        """ Testa a função printando o (x, y, f(x)): para verificar se o valor de saída do modelo é próximo ao real"""
         for t in dados_para_teste:
-            y = B0 + (t[0] * B1)
-            print("x: " + str(t[0]) + ", y: "+ str(t[1]) + ", f(x): "+ str(y))
+            print("x: " + str(t[0]) + ", y: "+ str(t[1]) + ", f(x): "+ str(B0 + (t[0] * B1)))
 
-    def somat(self,lista_de_numeros, tipo):
+    def somat(self, lista_de_numeros, tipo):
+        """" Realiza o somatório """
         numeros = []
         for t in lista_de_numeros:
             if tipo == 'x':
@@ -96,18 +85,32 @@ class Regrassao:
             numeros.append(a)
         return sum(numeros)
             
-    def get_base_treino(self,dados, N):
+    def split_bases(self,dados, N):
+        """ Separa a lista de dados em base de treino e de testes """
         posicoes_para_treino = []
         while (len(posicoes_para_treino) < round(N * 0.7)):
             posicao = randint(0, N - 1)
             if posicao not in posicoes_para_treino:
                 posicoes_para_treino.append(posicao)
-        dados_para_treino = [dados[posicao] for posicao in posicoes_para_treino]
-        dados_para_teste = [dados[posicao_do_dado] for posicao_do_dado in range(len(dados)) if posicao_do_dado not in posicoes_para_treino]
-        
+        dados_para_treino = [dados[p] for p in posicoes_para_treino]
+        dados_para_teste = [dados[p] for p in range(len(dados)) if p not in posicoes_para_treino]
         # print("Base para treino: " + str(dados_para_treino))
         # print("Base para teste: " + str(dados_para_teste))
         return dados_para_treino, dados_para_teste
+   
+    def split_dados(self, dados, tipo):
+        """ Pega o x de acordo com o tipo do modelo a ser treinado """
+        resultados = []
+        for item in dados:
+            if tipo == "Idade":
+                x = item.get("Idade")
+            elif tipo == "TempoEstudo":
+                x = item.get("TempoEstudo")
+            elif tipo == "Faltas":
+                x = item.get("Faltas") 
+            y = item.get("MediaProvas")
+            resultados.append((int(x), int(y)))
+        return resultados
 
 if __name__ == "__main__":
     reg = Regrassao()
