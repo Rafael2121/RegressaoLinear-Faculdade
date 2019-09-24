@@ -1,10 +1,10 @@
 # Atividade de Regressão Linear
 
-## Intrudoção
+## Introdução
 Atividade avaliativa de _"Tópicos Especiais: Machine Learning"_, realizada em sala de aula no dia 18/09/2018. O objetivo do projeto é ler um arquivo **AnaliseEstudo.csv** que contem  "idade", "Horas de estudo" e "Faltas" de centenas de indivíduos, e suas respectivas notas, calculando sua média geral.
 
-Após isto, são criados 3 modelos(com os seguintes dados acima) por Regrassão Linear simples e calculado seu desvio padrão com base nos resultados.
-Após isto, para cada um será plotado um grafico utilizando a biblioteca **matplotlib**, que está nas dependências do projeto.
+Após isto, são criados 3 modelos(com os seguintes dados acima) por Regressão Linear simples, após isso é calculado seu desvio padrão com base nos resultados.
+Após isto, para cada medolo será plotado um grafico utilizando a biblioteca **matplotlib**, que está nas dependências do projeto.
 
 - Lembrando que: Quanto maior o teu desvio padrão, pior o modelo ou mais variados são os dados que foram usados como insumo do teu treinamento.
 
